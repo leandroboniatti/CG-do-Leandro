@@ -1,9 +1,7 @@
 /* Adaptado de Hello Triangle Original que está no Github da professora */
 
-/* Hello Triangle - código adaptado de https://learnopengl.com/#!Getting-started/Hello-Triangle 
- *
- * Adaptado por Rossana Baptista Queiroz para a disciplina de Processamento Gráfico - Unisinos
- * Versão inicial: 7/4/2017 - Última atualização em 19/03/2024
+/* Hello Triangle - código adaptado por Rossana Baptista Queiroz para a disciplina de Processamento Gráfico - Unisinos
+				  - original em https://learnopengl.com/#!Getting-started/Hello-Triangle 
 */
 
 #include <iostream>

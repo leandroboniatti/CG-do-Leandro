@@ -118,7 +118,7 @@ int main() {
 
 		glUniform4f(colorLoc, 1.0f, 0.0f, 0.0f, 1.0f); //enviando cor do objeto para variável uniform inputColor
 
-		glDrawArrays(GL_QUADS, 0, 4); // Chamada de desenho - drawcall	// Poligono totalmente Preenchido - GL_TRIANGLES
+		glDrawArrays(GL_TRIANGLES, 0, 3); // Chamada de desenho - drawcall	// Poligono totalmente Preenchido - GL_TRIANGLES
 
 		glBindVertexArray(0); //Desconectando o buffer de geometria
 

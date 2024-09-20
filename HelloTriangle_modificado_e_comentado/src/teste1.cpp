@@ -242,5 +242,5 @@ int setupGeometry() {
 
 	glBindVertexArray(0); // Desvincula o VAO (é uma boa prática desvincular qualquer buffer ou array para evitar bugs medonhos)
 
-	return VAO;
+	return VAO;	// VAO (Vertex Array Object)
 }

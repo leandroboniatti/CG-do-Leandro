@@ -212,13 +212,13 @@ int setupGeometry() {
 
 	GLuint VBO, VAO;
 	
-	glGenBuffers(1, &VBO);	//Geração do identificador do VBO
+	glGenBuffers(1, &VBO);	// Geração do identificador do VBO (Vertex Buffer Objects)
 	
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);	//Faz a conexão (vincula) do buffer como um buffer de array
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);	// Faz a conexão (vincula) do buffer como um buffer de array
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);	//Envia os dados do array de floats para o buffer da OpenGl
 
-	glGenVertexArrays(1, &VAO);	//Geração do identificador do VAO (Vertex Array Object)
+	glGenVertexArrays(1, &VAO);	// Geração do identificador do VAO (Vertex Array Object)
 
 	// Vincula (bind) o VAO primeiro, e em seguida  conecta e seta o(s) buffer(s) de vértices
 	// e os ponteiros para os atributos 

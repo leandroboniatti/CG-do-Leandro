@@ -116,9 +116,9 @@ int main() {
 
 		glBindVertexArray(VAO); //Conectando ao buffer de geometria
 
-		glUniform4f(colorLoc, 1.0f, 0.0f, 0.0f, 1.0f); //enviando cor do objeto para variável uniform inputColor
+		glUniform4f(colorLoc, 1.0f, 0.0f, 0.0f, 1.0f); //enviando cor do objeto para variável uniform inputColor -> glUniform4f(%RED, %GREEN, %BLUE, %ALPHA);
 
-		glDrawArrays(GL_QUADS, 0, 4); // Chamada de desenho - drawcall	// Poligono totalmente Preenchido - GL_TRIANGLES
+		glDrawArrays(GL_TRIANGLES, 0, 3); // Chamada de desenho - drawcall	// Poligono totalmente Preenchido - GL_TRIANGLES
 
 		glBindVertexArray(0); //Desconectando o buffer de geometria
 
@@ -133,9 +133,8 @@ int main() {
 	return 0;
 }
 
-// Função de callback de teclado - só pode ter uma instância (deve ser estática se
-// estiver dentro de uma classe) - É chamada sempre que uma tecla for pressionada
-// ou solta via GLFW
+// Função de callback de teclado - só pode ter uma instância (deve ser estática se estiver dentro de uma classe)
+// É chamada sempre que uma tecla for pressionada ou solta via GLFW
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)

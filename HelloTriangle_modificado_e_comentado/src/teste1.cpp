@@ -51,10 +51,10 @@ int main() {
 
 	glfwInit();	// Inicialização da GLFW
 
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);		// Informa a versão do OpenGL a partir da qual o código funcionará			
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);		// Exemplo para versão 4.6 - Você deve adaptar para a versão do OpenGL suportada por sua placa
+	//glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);		// Informa a versão do OpenGL a partir da qual o código funcionará			
+    //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);		// Exemplo para versão 4.6 - Você deve adaptar para a versão do OpenGL suportada por sua placa
 						
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     
 	//Sugestão: comente as 3 linhas de código anteriores para descobrir a versão suportada por sua placa e depois atualize (por exemplo: 4.5 com 4 e 5)
 	

@@ -174,6 +174,7 @@ int setupShader() {
 	glAttachShader(shaderProgram, vertexShader);
 	glAttachShader(shaderProgram, fragmentShader);
 	glLinkProgram(shaderProgram);
+	
 	// Checando por erros de linkagem
 	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
 	if (!success) {

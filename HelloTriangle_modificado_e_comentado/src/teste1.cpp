@@ -38,7 +38,7 @@ const GLchar* vertexShaderSource = "#version 400\n"		// Código fonte do Vertex 
 "}\0";
 
 
-const GLchar* fragmentShaderSource = "#version 400\n"	//Códifo fonte do Fragment Shader (em GLSL): ainda hardcoded
+const GLchar* fragmentShaderSource = "#version 400\n"	//Códifo fonte do Fragment Shader (em GLSL)
 "uniform vec4 inputColor;\n"
 "out vec4 color;\n"
 "void main()\n"
@@ -187,9 +187,8 @@ int setupShader() {
 	return shaderProgram;
 }
 
-// Esta função está bastante harcoded
 // O objetivo é criar os buffers que armazenam a geometria de um triângulo
-// Apenas atributo de coordenada nos vértices
+// Por Enquanto enviando apenas atributo de coordenadas dos vértices
 // 1 VBO com as coordenadas, VAO com apenas 1 ponteiro para atributo
 // A função retorna o identificador do VAO
 int setupGeometry() {

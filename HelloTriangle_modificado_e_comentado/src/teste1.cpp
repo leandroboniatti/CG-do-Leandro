@@ -29,12 +29,12 @@ int setupGeometry(); // Protótipo da função responsável pela criação do ..
 const GLuint WIDTH = 800, HEIGHT = 600;	// Dimensões da janela (pode ser alterado em tempo de execução)
 
 
-const GLchar* vertexShaderSource = "#version 400\n"		// Código fonte do Vertex Shader (em GLSL): ainda hardcoded
+const GLchar* vertexShaderSource = "#version 400\n"		// Código fonte do Vertex Shader (em GLSL)
 "layout (location = 0) in vec3 position;\n"
 "void main()\n"
 "{\n"
 //...pode ter mais linhas de código aqui!
-"gl_Position = vec4(position.x, position.y, position.z, 1.0);\n"
+"gl_Position = vec4(position, 1.0);\n"
 "}\0";
 
 
@@ -44,7 +44,7 @@ const GLchar* fragmentShaderSource = "#version 400\n"	//Códifo fonte do Fragmen
 "void main()\n"
 "{\n"
 "color = inputColor;\n"
-"}\n\0";
+"}\0";
 
 
 int main() {

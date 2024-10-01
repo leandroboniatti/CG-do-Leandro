@@ -22,9 +22,9 @@ using namespace std;	// Para não precisar digitar std:: na frente de comandos c
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode); // Protótipo da função de callback de teclado
 
-int setupShader();		// Protótipo da função responsável pela criação do .....
+int setupShader();		// Protótipo da função responsável pela compilação e montagem do programa de shader
 
-int setupGeometry();	// Protótipo da função responsável pela criação do .....
+int setupGeometry();	// Protótipo da função responsável pela criação do VBO e do VAO
 
 
 /*** Constantes	***/
@@ -83,16 +83,15 @@ int main() {
 	glfwGetFramebufferSize(window, &width, &height);
 	glViewport(0, 0, width, height);
 
-	GLuint shaderID = setupShader(); 	// Compilando e buildando o programa de shader
+	GLuint shaderID = setupShader(); 	// Compilando e buildando o programa de shader - retorna um identificador para o programa de shader
 	
 	GLuint VAO = setupGeometry();		// Gerando um buffer simples, com a geometria de um triângulo
 	
 
-	// Enviando a cor desejada (vec4) para o fragment shader
-	// Utilizamos as variáveis do tipo uniform em GLSL para armazenar esse tipo de info que não está nos buffers
+	// Neste código, para enviar a cor desejada (em um vec4) para o fragment shader, utilizamos variável do tipo uniform já que a informação não estará nos buffers
 	glUseProgram(shaderID);
-	GLint colorLoc = glGetUniformLocation(shaderID, "inputColor");
-	
+	GLint colorLoc = glGetUniformLocation(shaderID, "inputColor");	// busca a localização da varíavel "inputColor" dentro do programa de shader
+																	// armazena esta localização em "colorLoc"
 	
 	/*** Loop da aplicação - "game loop" ***/
 	while (!glfwWindowShouldClose(window))	{
@@ -100,7 +99,7 @@ int main() {
 		glfwPollEvents();	// Checa se houveram eventos de input (key pressed, mouse moved etc.) e chama as funções de callback correspondentes
 
 		// Limpa o buffer de cor
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // define a cor de fundo - % definido de 0.0 a 1.0 -> glClearColor(%RED, %GREEN, %BLUE, %ALPHA);
+		glClearColor(0.0f, 1.0f, 0.0f, 1.0f); // define a cor de fundo - % normalizado, definido de 0.0 a 1.0 -> glClearColor(%RED, %GREEN, %BLUE, %ALPHA);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		glLineWidth(10);	// o espessura padrão da linha é 1 pixel - alterado para....
@@ -108,7 +107,7 @@ int main() {
 
 		glBindVertexArray(VAO); //Conectando ao buffer de geometria
 
-		glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f); //enviando cor do objeto para variável uniform inputColor -> glUniform4f(%RED, %GREEN, %BLUE, %ALPHA);
+		glUniform4f(colorLoc, 1.0f, 0.0f, 0.0f, 1.0f); //enviando cor do objeto para variável uniform chamada "inputColor" -> glUniform4f(%RED, %GREEN, %BLUE, %ALPHA);
 
 		glDrawArrays(GL_TRIANGLES, 0, 3); 	// Chamada de desenho - drawcall	// Poligono totalmente Preenchido - GL_TRIANGLES
 											// Mudar de 3 pra 6 para fazer 2 triângulos
@@ -134,7 +133,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 }
 
 
-// O objetivo é compilar e "buildar" um programa de shader simples e único neste exemplo de código
+// Função responsável pela compilação e montagem do programa de shader
+// O objetivo é compilar e "buildar" um programa de shader - por enquanto, simples e único neste código
 // Os códigos fonte do vertex shader e do fragment shader estão nos arrays vertexShaderSource e fragmentShaderSource no iniçio deste arquivo
 // A função retorna o identificador do programa de shader
 int setupShader() {	/*** Função para gerar o ***/
@@ -157,6 +157,7 @@ int setupShader() {	/*** Função para gerar o ***/
 	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
 	glCompileShader(fragmentShader);
+
 	// Checando erros de compilação (exibição via log no terminal)
 	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
 	if (!success) {
@@ -176,17 +177,21 @@ int setupShader() {	/*** Função para gerar o ***/
 		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
 		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
 	}
+
 	glDeleteShader(vertexShader);
+
 	glDeleteShader(fragmentShader);
 
 	return shaderProgram;
 }
 
 
+// Função responsável pela criação do VBO e do VAO - por enquanto, um de cada somente
 // O objetivo é criar os buffers que armazenam a geometria de um triângulo: VBO e VAO
-// Por Enquanto enviando apenas atributo de coordenadas dos vértices
-// 1 VBO com as coordenadas, VAO com apenas 1 ponteiro para atributo
-// A função retorna o identificador do VAO
+// Por enquanto, enviando apenas atributo de coordenadas dos vértices
+// Por enquanto, o atributo de cor é enviado externamente por uma variável tipo "uniform" chamada "inputColor"
+// Por enquanto, 1 VBO com as coordenadas, VAO com apenas 1 ponteiro para atributo
+// A função retorna o identificador do VAO ()
 int setupGeometry() {
 
 	// Aqui setamos as coordenadas x, y e z do triângulo e as armazenamos de forma sequencial, já visando mandar para o VBO (Vertex Buffer Objects)
@@ -213,6 +218,7 @@ int setupGeometry() {
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);	// Faz a conexão/vinculação do buffer como um buffer de array
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);	//Envia os dados do array de floats para o buffer da OpenGl
+
 
 	glGenVertexArrays(1, &VAO);	// Geração do identificador do VAO (Vertex Array Object)
 

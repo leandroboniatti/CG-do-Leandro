@@ -46,7 +46,7 @@ const GLchar* fragmentShaderSource = "#version 400\n"
 "void main()\n"
 "{\n"
 "color = inputColor;\n"
-"}\n\0";
+"}\0";
 
 // Função MAIN
 int main()

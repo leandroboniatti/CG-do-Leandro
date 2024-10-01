@@ -1,44 +1,45 @@
-/* Adaptado de Hello Triangle Original que está no Github da professora */
+/*** Hello Triangle ***/
+/*** Disciplina de Computação Gráfica - Jogos Digitais - Unisinos ***/
+/*** Aluno: Ian Rossetti Boniatti ***/
+/*** Código adaptado da adaptaçao de Rossana Baptista Queiroz de https://learnopengl.com/#!Getting-started/Hello-Triangle ***/
 
-/* Hello Triangle - código adaptado por Rossana Baptista Queiroz para a disciplina de Processamento Gráfico - Unisinos
-				  - original em https://learnopengl.com/#!Getting-started/Hello-Triangle 
-*/
+
+/*** INCLUDES ***/
 
 #include <iostream>
 #include <string>
-#include <assert.h>
+#include <assert.h> // COM .h é biblioteca do C - SEM o .h é biblioteca do C++
 
-/* Certifique-se de incluir a GLAD antes de outros arquivos de cabeçalho que requerem OpenGL (como GLFW) */
-
-#include <glad/glad.h> 	// biblioteca de funções baseada nas definições/especificações OPENGL 
+#include <glad/glad.h> 	// biblioteca de funções baseada nas definições/especificações OPENGL
+						// Certifique-se de incluir a GLAD antes de outros arquivos de cabeçalho que requerem OpenGL (como GLFW)
 
 #include <GLFW/glfw3.h> // biblioteca de funções para criação da janela no Windows
 
-using namespace std;	// define o uso de std:: de forma implícita - evita por exemplo ter que usar std::cout ou std::cin
+using namespace std;	// Para não precisar digitar std:: na frente de comandos como cout e cin					
 
+
+/*** Protótipos das funções ***/
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode); // Protótipo da função de callback de teclado
 
+int setupShader();		// Protótipo da função responsável pela criação do .....
 
-int setupShader(); // Protótipo da função responsável pela criação do .....
+int setupGeometry();	// Protótipo da função responsável pela criação do .....
 
 
-int setupGeometry(); // Protótipo da função responsável pela criação do ....
-
+/*** Constantes	***/
 
 const GLuint WIDTH = 800, HEIGHT = 600;	// Dimensões da janela (pode ser alterado em tempo de execução)
 
-
-const GLchar* vertexShaderSource = "#version 400\n"		// Código fonte do Vertex Shader (em GLSL)
+const GLchar* vertexShaderSource = "#version 400\n"		// Código fonte do Vertex Shader (em GLSL - Graphics Library Shading Language)
 "layout (location = 0) in vec3 position;\n"
 "void main()\n"
 "{\n"
 //...pode ter mais linhas de código aqui!
-"gl_Position = vec4(position, 1.0);\n"
+"gl_Position = vec4(position.x, position.y, position.z, 1.0);\n"	// poderia ser: "gl_Position = vec4(position, 1.0);\n"
 "}\0";
 
-
-const GLchar* fragmentShaderSource = "#version 400\n"	//Códifo fonte do Fragment Shader (em GLSL)
+const GLchar* fragmentShaderSource = "#version 400\n"	//Código fonte do Fragment Shader (em GLSL - Graphics Library Shading Language)
 "uniform vec4 inputColor;\n"
 "out vec4 color;\n"
 "void main()\n"
@@ -47,27 +48,23 @@ const GLchar* fragmentShaderSource = "#version 400\n"	//Códifo fonte do Fragmen
 "}\0";
 
 
+/*** Função MAIN ***/
 int main() {
 
 	glfwInit();	// Inicialização da GLFW
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);		// Informa a versão do OpenGL a partir da qual o código funcionará			
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);		// Exemplo para versão 4.6 - Você deve adaptar para a versão do OpenGL suportada por sua placa
-						
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     
 	//Sugestão: comente as 3 linhas de código anteriores para descobrir a versão suportada por sua placa e depois atualize (por exemplo: 4.5 com 4 e 5)
-	
 	//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); //Essencial para computadores da Apple
-	
-	
-	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Olá Triângulo! - Boniatti", nullptr, nullptr);	// Criação da janela GLFW
+		
+	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Olá Triângulo! - Ian R. Boniatti", nullptr, nullptr);	// Criação da janela GLFW
 	
 	glfwMakeContextCurrent(window);
 
-
 	glfwSetKeyCallback(window, key_callback);	// Fazendo o registro da função de callback para a janela GLFW
-
 	
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {	// GLAD: carrega todos os ponteiros de funções da OpenGL
 		cout << "Failed to initialize GLAD" << std::endl;
@@ -86,50 +83,48 @@ int main() {
 	glfwGetFramebufferSize(window, &width, &height);
 	glViewport(0, 0, width, height);
 
+	GLuint shaderID = setupShader(); 	// Compilando e buildando o programa de shader
 	
-	GLuint shaderID = setupShader();	// Compilando e buildando o programa de shader
-
-	
-	GLuint VAO = setupGeometry();	// Gerando um buffer simples, com a geometria de um triângulo
+	GLuint VAO = setupGeometry();		// Gerando um buffer simples, com a geometria de um triângulo
 	
 
 	// Enviando a cor desejada (vec4) para o fragment shader
-	// Utilizamos a variáveis do tipo uniform em GLSL para armazenar esse tipo de info que não está nos buffers
-	GLint colorLoc = glGetUniformLocation(shaderID, "inputColor");
+	// Utilizamos as variáveis do tipo uniform em GLSL para armazenar esse tipo de info que não está nos buffers
 	glUseProgram(shaderID);
+	GLint colorLoc = glGetUniformLocation(shaderID, "inputColor");
 	
-
-	while (!glfwWindowShouldClose(window))	{	// Loop da aplicação - "game loop"
+	
+	/*** Loop da aplicação - "game loop" ***/
+	while (!glfwWindowShouldClose(window))	{
 		
 		glfwPollEvents();	// Checa se houveram eventos de input (key pressed, mouse moved etc.) e chama as funções de callback correspondentes
 
 		// Limpa o buffer de cor
-
-		glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // define a cor de fundo - % definido de 0.0 a 1.0 -> glClearColor(%RED, %GREEN, %BLUE, %ALPHA);
-
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // define a cor de fundo - % definido de 0.0 a 1.0 -> glClearColor(%RED, %GREEN, %BLUE, %ALPHA);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glLineWidth(10);
-		glPointSize(20);
+		glLineWidth(10);	// o espessura padrão da linha é 1 pixel - alterado para....
+		glPointSize(20);	// o tamanho padrão do ponto é 1 pixel - alterado para....
 
 		glBindVertexArray(VAO); //Conectando ao buffer de geometria
 
-		glUniform4f(colorLoc, 1.0f, 0.0f, 0.0f, 1.0f); //enviando cor do objeto para variável uniform inputColor -> glUniform4f(%RED, %GREEN, %BLUE, %ALPHA);
+		glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f); //enviando cor do objeto para variável uniform inputColor -> glUniform4f(%RED, %GREEN, %BLUE, %ALPHA);
 
-		glDrawArrays(GL_TRIANGLES, 0, 3); // Chamada de desenho - drawcall	// Poligono totalmente Preenchido - GL_TRIANGLES
+		glDrawArrays(GL_TRIANGLES, 0, 3); 	// Chamada de desenho - drawcall	// Poligono totalmente Preenchido - GL_TRIANGLES
+											// Mudar de 3 pra 6 para fazer 2 triângulos
 
-		glBindVertexArray(0); //Desconectando o buffer de geometria
-
+		glBindVertexArray(0);	//Desconectando o buffer de geometria
 		
 		glfwSwapBuffers(window);	// Troca os buffers da tela
 	}
 	
 	glDeleteVertexArrays(1, &VAO);	// Pede pra OpenGL desalocar os buffers
-
+	
 	glfwTerminate();	// Finaliza a execução da GLFW, limpando os recursos alocados por ela
 
 	return 0;
 }
+
 
 // Função de callback de teclado - só pode ter uma instância (deve ser estática se estiver dentro de uma classe)
 // É chamada sempre que uma tecla for pressionada ou solta via GLFW
@@ -138,11 +133,11 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		glfwSetWindowShouldClose(window, GL_TRUE);
 }
 
-// Esta função está basntante hardcoded
+
 // O objetivo é compilar e "buildar" um programa de shader simples e único neste exemplo de código
-// O código fonte do vertex e fragment shader está nos arrays vertexShaderSource e fragmentShaderSource no iniçio deste arquivo
+// Os códigos fonte do vertex shader e do fragment shader estão nos arrays vertexShaderSource e fragmentShaderSource no iniçio deste arquivo
 // A função retorna o identificador do programa de shader
-int setupShader() {
+int setupShader() {	/*** Função para gerar o ***/
 
 	// Vertex shader
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -187,7 +182,8 @@ int setupShader() {
 	return shaderProgram;
 }
 
-// O objetivo é criar os buffers que armazenam a geometria de um triângulo
+
+// O objetivo é criar os buffers que armazenam a geometria de um triângulo: VBO e VAO
 // Por Enquanto enviando apenas atributo de coordenadas dos vértices
 // 1 VBO com as coordenadas, VAO com apenas 1 ponteiro para atributo
 // A função retorna o identificador do VAO
@@ -198,33 +194,33 @@ int setupGeometry() {
 	GLfloat vertices[] = {
 	//      x     y    z
 	//T0
-		  -0.5, -0.5, 0.0,  // v0 (Vértice 0 do Triângulo 0)
-		   0.5, -0.5, 0.0,  // v1 (Vértice 1 do Triângulo 0)
- 		   0.0,  0.5, 0.0,  // v2 (Vértice 2 do Triângulo 0)
-	
-	//T1
-		  -0.5, -0.5, 0.0,  // v0 (Vértice 0 do Triângulo 1)
-		   0.5, -0.5, 0.0,  // v1 (Vértice 1 do Triângulo 1)
- 		   0.0,  0.5, 0.0,  // v2 (Vértice 2 do Triângulo 1)
+		-0.5, -0.5, 0.0, // v0 (Vértice 0 do Triângulo 0)
+		 0.5, -0.5, 0.0, // v1 (Vértice 0 do Triângulo 1)
+ 		 0.0,  0.5, 0.0, // v2 (Vértice 0 do Triângulo 2)
 
-	//T2		   
+	//T1
+		-0.5,  0.5, 0.0, // v0 (Vértice 0 do Triângulo 0)
+		-0.2,  0.5, 0.0, // v1 (Vértice 0 do Triângulo 1)
+ 		-0.5,  0.0, 0.0, // v2 (Vértice 0 do Triângulo 2)
+
+	// T2 ....			  
 	};
 
 	GLuint VBO, VAO;
 	
 	glGenBuffers(1, &VBO);	// Geração do identificador do VBO (Vertex Buffer Objects)
 	
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);	// Faz a conexão (vincula) do buffer como um buffer de array
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);	// Faz a conexão/vinculação do buffer como um buffer de array
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);	//Envia os dados do array de floats para o buffer da OpenGl
 
 	glGenVertexArrays(1, &VAO);	// Geração do identificador do VAO (Vertex Array Object)
 
-	// Vincula (bind) o VAO primeiro, e em seguida  conecta e seta o(s) buffer(s) de vértices
+	// Vincula (bind) o VAO primeiro, e em seguida conecta e seta o(s) buffer(s) de vértices
 	// e os ponteiros para os atributos 
 	glBindVertexArray(VAO);
 
-	//Para cada atributo do vertice, criamos um "AttribPointer" (ponteiro para o atributo), indicando: 
+	// Para cada atributo do vertice, criamos um "AttribPointer" (ponteiro para o atributo), indicando: 
 	// Localização no shader * (a localização dos atributos devem ser correspondentes no layout especificado no vertex shader)
 	// Numero de valores que o atributo tem (por ex, 3 coordenadas xyz) 
 	// Tipo do dado

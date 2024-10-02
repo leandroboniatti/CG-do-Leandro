@@ -28,7 +28,9 @@ int setupShader();		// Protótipo da função responsável pela compilação e m
 
 int setupGeometry();	// Protótipo da função responsável pela criação do VBO e do VAO
 
-int createPoligno(int numeroPontos, float raio = 0.5);
+int createPoligno(int numeroPontos, float anguloInicial, float anguloFinal, float raio = 0.5);
+
+int createEstrela(int numeroPontos, float raioMinimo, float raioMaximo);
 
 
 /*** Constantes	***/
@@ -95,11 +97,27 @@ int main() {
 	GLuint shaderID = setupShader(); 	
 	
 	
-	// Gerando o buffer VAO (retorna o identificador OpenGL para o VAO)
-	int numeroPontos = 30;
-	int numeroVertices = numeroPontos + 2;
+	// 	Parâmetros para exerc. 6 a,b,c,d
+	int numeroPontos = 5;		 // Círculo/PacMan/FatiaPizz ->  60  Octagno ->  8	Pentagno ->     5	// pontos = vertices externos do poligno
+	int acrescimoVertices = 2;	 // Círculo/Octagno/Pentagno ->   2  PacMan ->   1	FatiaPizza ->   1	Estrela -> 0
+	float anguloInicial = 0.0;   // Círculo/Octagno/Pentagno ->   0	 PacMan ->  40	FatiaPizza -> 320
+	float anguloFinal = 360.0;	 // Círculo/Octagno/Pentagno -> 360	 PacMan -> 320	FatiaPizza ->  40
+	
+	int numeroVertices = numeroPontos + acrescimoVertices;	// total de vertices para desenhar o polígno usando triangulos
+															
+	bool desenhaInterior = true;
+	bool desenhaContorno = false;
+	bool desenhaPontos = false;
 
-	GLuint VAO = createPoligno(numeroPontos);
+
+	// Gerando o buffer VAO (retorna o identificador OpenGL para o VAO)
+
+	GLuint VAO = createPoligno(numeroPontos,anguloInicial,anguloFinal);	// exerc. 6 a,b,c,d
+
+	//GLuint VAO = createEstrela(numeroPontos, 0.10, 0.95);	// exerc. 6 e
+
+
+
 
 	
 	// Neste código, para enviar a cor desejada para o fragment shader, utilizamos variável do tipo uniform (um vec4) já que a informação não estará nos buffers
@@ -117,21 +135,27 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		glLineWidth(10);	// o espessura padrão da linha é 1 pixel - alterado para....
-		glPointSize(20);	// o tamanho padrão do ponto é 1 pixel - alterado para....
+		glPointSize(10);	// o tamanho padrão do ponto é 1 pixel - alterado para....
 
 		glBindVertexArray(VAO); // Conectando ao buffer de geometria
 
-		glUniform4f(colorLoc, 1.0f, 0.0f, 0.0f, 1.0f); //enviando cor do objeto para variável uniform chamada "inputColor" -> glUniform4f(%RED, %GREEN, %BLUE, %ALPHA);
-
-		glDrawArrays(GL_TRIANGLE_FAN, 0, numeroVertices); 	// Chamada de desenho - drawcall
+		// Desenho preenchido (interior)
+		if (desenhaInterior) {
+			glUniform4f(colorLoc, 1.0f, 0.0f, 0.0f, 1.0f); //enviando cor do objeto para variável uniform chamada "inputColor" -> glUniform4f(%RED, %GREEN, %BLUE, %ALPHA);
+			glDrawArrays(GL_TRIANGLE_FAN, 0, numeroVertices); 	// Chamada de desenho - drawcall
+		}
 
 		//Desenho com contorno (linhas)
-		glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f); //enviando NOVA cor para variável uniform inputColor
-		glDrawArrays(GL_LINE_LOOP, 1, numeroPontos); 
-		
+		if (desenhaContorno) {
+			glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f); //enviando NOVA cor para variável uniform inputColor
+			glDrawArrays(GL_LINE_LOOP, 1, numeroPontos);
+		}
+
 		//Desenho só dos pontos (vértices)
-		glUniform4f(colorLoc, 1.0f, 1.0f, 0.0f, 1.0f); //enviando NOVA cor para variável uniform inputColor
-		glDrawArrays(GL_POINTS, 0, numeroVertices-1);
+		if (desenhaPontos) {
+			glUniform4f(colorLoc, 1.0f, 1.0f, 0.0f, 1.0f); //enviando NOVA cor para variável uniform inputColor
+			glDrawArrays(GL_POINTS, 0, numeroVertices-1);
+		}
 										
 		glBindVertexArray(0);	//Desconectando o buffer de geometria
 		
@@ -267,20 +291,32 @@ int setupGeometry() {
 }
 
 
-int createPoligno(int numeroPontos, float raio) {
+int createPoligno(int numeroPontos, float anguloInicial, float anguloFinal, float raio) {
 	
 	vector <GLfloat> vertices;
 
-	float angulo = 0.0;
+	float intervalo;
+	float angulo;	
 
-	float intervalo = 2 * Pi / (float)numeroPontos;
+	if (anguloInicial < anguloFinal) {
+		intervalo = (anguloFinal - anguloInicial) / (float)numeroPontos;
+		angulo = anguloInicial;
+	}
+	else {
+		intervalo = (anguloInicial - anguloFinal - 360) / (float)numeroPontos;
+		angulo = anguloFinal;
+	}
+
+	intervalo = intervalo * 2 * Pi / 360;
+	angulo 	  = angulo    * 2 * Pi / 360;
 
 	// adicionando o centro do circulo no vetor
-	vertices.push_back(0.0);	// 
-	vertices.push_back(0.0);
-	vertices.push_back(0.0);
+	vertices.push_back(0.0);	// Xc
+	vertices.push_back(0.0);	// Yc
+	vertices.push_back(0.0);	// Zc
 
-	for (int i = 0; i < numeroPontos + 1; i++) {
+	for (int i = 0; i < numeroPontos+1; i++)	{
+		
 		vertices.push_back(raio * cos(angulo));	// Xi
 		vertices.push_back(raio * sin(angulo)); // Yi
 		vertices.push_back(0.0);				// Zi
@@ -320,4 +356,70 @@ int createPoligno(int numeroPontos, float raio) {
 	glBindVertexArray(0); // Desvincula o VAO (é uma boa prática desvincular qualquer buffer ou array para evitar bugs medonhos)
 
 	return VAO;	// VAO (Vertex Array Object)	// i (interno à função - só para diferenciar do VAOe que está no main)
+}
+
+
+int createEstrela(int numeroPontos, float raioMinimo, float raioMaximo) {
+
+	vector <GLfloat> vertices;
+
+	float angulo = 0.0;
+
+	float intervalo = 2 * Pi / (float)numeroPontos;
+
+	float raio;
+
+	//Adicionando o ponto da origem (0.0,0.0,0.0) como sendo o centro do círculo
+	vertices.push_back(0.0); // Xc
+	vertices.push_back(0.0); // Yc
+	vertices.push_back(0.0); // Zc
+
+	for (int i = 0; i < numeroPontos+1; i++)
+	{
+		if (i % 2 == 0) raio = raioMaximo;
+		else raio = raioMinimo;
+
+		float x = raio * cos(angulo);
+		float y = raio * sin(angulo);
+		float z = 0.0;
+
+		vertices.push_back(x); // x
+		vertices.push_back(y); // y
+		vertices.push_back(z); // z
+
+		angulo = angulo + intervalo;
+	}
+
+	//Configuração dos buffer VBO e VAO
+	GLuint VBO, VAO;
+	//Geração do identificador do VBO
+	glGenBuffers(1, &VBO);
+	//Faz a conexão (vincula) do buffer como um buffer de array
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	//Envia os dados do array de floats para o buffer da OpenGl
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_STATIC_DRAW);
+
+	//Geração do identificador do VAO (Vertex Array Object)
+	glGenVertexArrays(1, &VAO);
+	// Vincula (bind) o VAO primeiro, e em seguida  conecta e seta o(s) buffer(s) de vértices
+	// e os ponteiros para os atributos 
+	glBindVertexArray(VAO);
+	//Para cada atributo do vertice, criamos um "AttribPointer" (ponteiro para o atributo), indicando: 
+	// Localização no shader * (a localização dos atributos devem ser correspondentes no layout especificado no vertex shader)
+	// Numero de valores que o atributo tem (por ex, 3 coordenadas xyz) 
+	// Tipo do dado
+	// Se está normalizado (entre zero e um)
+	// Tamanho em bytes 
+	// Deslocamento a partir do byte zero 
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+	glEnableVertexAttribArray(0);
+
+	// Observe que isso é permitido, a chamada para glVertexAttribPointer registrou o VBO como o objeto de buffer de vértice 
+	// atualmente vinculado - para que depois possamos desvincular com segurança
+	glBindBuffer(GL_ARRAY_BUFFER, 0); 
+
+	// Desvincula o VAO (é uma boa prática desvincular qualquer buffer ou array para evitar bugs medonhos)
+	glBindVertexArray(0); 
+
+	return VAO;
 }
